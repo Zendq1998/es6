@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>bindInit</title>
 </head>
 <body>
-    <div id="app"><input type="text" v-model="text"><div><p>{{text}}</p></div>{{text2}}</div>
+    <div id="app">
+        <input type="text" v-model="text">
+        <div><p>{{text}}</p></div>
+        {{text2}}
+        [doge]: </div>
 <script>
     // 将vm里面对应的值赋给node节点对应的v-model属性值以及用{{}}包含的值
     function compile (node, vm) {

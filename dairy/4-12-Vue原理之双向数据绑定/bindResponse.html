@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>bindResponse</title>
+</head>
+<body>
+    <div id="app">
+        <input type="text" v-model="text" id="test">
+        {{text}}
+    </div>
+<script>
+    function $(id) {
+        return document.getElementById(id)
+    }
+
+    function compile (node, vm) {
+        var reg = /\{\{(.*)\}\}/
+        if(node.nodeType === 1) {
+            var attr = node.attributes
+            for(let i=0;i<attr.length;i++) {
+                if(attr[i].nodeName == 'v-model') {
+                    console.log(attr[i].nodeValue)
+                    var name = attr[i].nodeValue
+                    // 监听器
+                    node.addEventListener('input', function(e) {
+                        vm[name] = e.target.value
+                    })
+                    node.value = vm[name]
+                    console.log(node)
+                    node.removeAttribute('v-model')
+                }
+            }
+        }
+        if(node.nodeType === 3) {
+            if(reg.test(node.nodeValue)) {
+                var name = RegExp.$1
+                name = name.trim()
+                node.nodeValue = vm[name]
+            }
+        }
+    }
+
+    function nodeToFragment(node ,vm) {
+        var frag = document.createDocumentFragment()
+        var child
+        while(child = node.firstChild) {
+            // 初始化child节点
+            compile(child,vm)
+            // 将child节点劫持到文档片段中
+            frag.appendChild(child)
+        }
+        return frag
+    }
+
+    // 给obj添加值为val的key监听属性
+    function defineReactive(obj, key, val) {
+        Object.defineProperty(obj, key, {
+            get: function () {
+                return val
+            },
+            set: function (newVal) {
+                if(newVal === val) return
+                val = newVal
+                console.log(val)
+            }
+        })
+    }
+
+    // 将obj的所有属性全部添加到vm中
+    function observe(obj, vm) {
+        Object.keys(obj).forEach(function(key) {
+            defineReactive(vm, key, obj[key])
+        })
+    }
+
+    function Vue(options) {
+        this.data = options.data
+        var data = this.data
+        // 将data中的属性全部通过Obeject.defineProperty()直接添加到vue对象中
+        observe(data, this)
+        var id = options.el
+        var dom = nodeToFragment($(id),this)
+        $(id).appendChild(dom)
+    }
+
+    var vm = new Vue({
+        el: 'app',
+        data: {
+            text: 'hello world',
+        }
+    });
+
+</script>
+</body>
+</html>
