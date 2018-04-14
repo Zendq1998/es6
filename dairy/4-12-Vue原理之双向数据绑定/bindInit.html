@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"><input type="text" v-model="text"><div><p>{{text}}</p></div>{{text2}}</div>
+<script>
+    // 将vm里面对应的值赋给node节点对应的v-model属性值以及用{{}}包含的值
+    function compile (node, vm) {
+        // 正则匹配双括号之间的字符串
+        var reg = /\{\{(.*)\}\}/
+        // 节点类型为元素
+        if(node.nodeType === 1) {
+            var attr = node.attributes
+            // 解析属性
+            for(let i=0;i<attr.length;i++) {
+                if(attr[i].nodeName == 'v-model') {
+                    // 获取v-model绑定都属性名
+                    var name = attr[i].nodeValue
+                    // 将data中对应该属性名的值赋给这个节点的value
+                    node.value = vm.data[name]
+                    node.removeAttribute('v-model')
+                }
+            }
+            // 解析内容
+            if(reg.test(node.innerHTML)) {
+                var name = RegExp.$1 // 获取匹配到的字符串
+                name = name.trim() // 清除两端都空白字符
+                // 将data中对应的属性名的值赋给这个节点
+                node.innerHTML = vm.data[name]
+                
+            }
+        }
+        // 节点类型为text
+        if (node.nodeType === 3) {
+            console.log(node.nodeValue)
+            if (reg.test(node.nodeValue)) {
+                var name = RegExp.$1 // 获取匹配到的字符串
+                name = name.trim() // 清除两端都空白字符
+                // 将data中对应的属性名的值赋给这个节点
+                node.nodeValue = vm.data[name] 
+            }
+          }
+    }
+
+    function $(id) {
+        return document.getElementById(id)
+    }
+
+    function nodeToFragment(node ,vm) {
+        var frag = document.createDocumentFragment()
+        var child
+        while(child = node.firstChild) {
+            // 初始化child节点
+            compile(child,vm)
+            // 将child节点劫持到文档片段中
+            frag.appendChild(child)
+        }
+        return frag
+    }
+
+    function Vue(option) {
+        this.data = option.data
+        var id = option.el
+        var dom = nodeToFragment($(id),this)
+        $(id).appendChild(dom)
+    }
+
+    var vm = new Vue({
+        el: 'app',
+        data: {
+            text: 'hello world',
+            text2: 'hello world2',
+        }
+    });
+</script>
+</body>
+</html>
