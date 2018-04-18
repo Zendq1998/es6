@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>named slot</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.3/vue.js"></script>
+  
+</head>
+<body>
+<div id="app">
+    <child-component>
+        <h2 slot="header">标题</h2>
+        <p>正文内容</p>
+        <p>更多正文内容</p>
+        <div slot="footer">底部信息</div>
+    </child-component>
+</div>
+
+<script>
+    Vue.component('child-component',{
+        template: `<div class="cantainer">
+            <div class="hearder">
+                <slot name="header"></slot>
+            </div>
+            <div class="main">
+                <slot></slot>
+            </div>
+            <div class="footer">
+                <slot name="footer"></slot>
+            </div>
+        </div>`
+    })
+    var app = new Vue({
+        el: '#app'
+    })
+</script>
+</body>
+</html>
